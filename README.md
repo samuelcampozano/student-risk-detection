@@ -59,6 +59,11 @@ Este proyecto puede ser extendido o mantenido a futuro para:
 
 ---
 
+## 🧠 Autor
+Proyecto desarrollado por Campozano Lopez Samuel Segundo en conjunto con Vera Parrales Jonathan Marcos como parte de titulacion y como una solución innovadora para la Unidad Educativa Juan Montalvo.
+
+---
+
 ## ⚡ Instalación Rápida
 
 ```bash
@@ -77,7 +82,3 @@ pip install -r requirements.txt
 
 # Ejecutar el servidor de desarrollo
 uvicorn app.main:app --reload
-
-## 🧠 Autor
-Proyecto desarrollado por Campozano Lopez Samuel Segundo en conjunto con Vera Parrales Jonathan Marcos como parte de titulacion y como una solución innovadora para la Unidad Educativa Juan Montalvo.
-
