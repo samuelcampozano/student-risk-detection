@@ -1,6 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from app.models import Estudiante
 from app.db import supabase
+from app.dependencies import requiere_rol
+
 
 router = APIRouter(
     prefix="/estudiantes",
@@ -13,8 +15,8 @@ def crear_estudiante(estudiante: Estudiante):
     response = supabase.table('estudiantes').insert(data).execute()
     return response.data
 
-@router.get("/")
-def listar_estudiantes():
+@router.get("/", dependencies=[Depends(requiere_rol(["admin", "dce_user"]))])
+async def listar_estudiantes():
     response = supabase.table('estudiantes').select("*").execute()
     return response.data
 
@@ -33,8 +35,8 @@ def actualizar_estudiante(estudiante_id: str, estudiante: Estudiante):
         raise HTTPException(status_code=404, detail="Estudiante no encontrado o no actualizado")
     return response.data[0]
 
-@router.delete("/{estudiante_id}")
-def eliminar_estudiante(estudiante_id: str):
+@router.delete("/{estudiante_id}", dependencies=[Depends(requiere_rol(["admin"]))])
+async def eliminar_estudiante(estudiante_id: str):
     response = supabase.table('estudiantes').delete().eq("id", estudiante_id).execute()
     if not response.data:
         raise HTTPException(status_code=404, detail="Estudiante no encontrado o no eliminado")

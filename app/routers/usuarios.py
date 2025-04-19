@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
+from typing import Optional
 from app.db import supabase
 from app.auth import hashear_password, verificar_password, crear_token_acceso
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -15,6 +16,8 @@ class UsuarioRegistro(BaseModel):
     email: str
     password: str
     nombre_completo: str
+    rol: Optional[str] = "dce_user"  # Nuevo campo
+
 
 class UsuarioToken(BaseModel):
     access_token: str
@@ -28,10 +31,12 @@ async def registrar_usuario(usuario: UsuarioRegistro):
 
     hashed_password = hashear_password(usuario.password)
     nuevo_usuario = {
-        "email": usuario.email,
-        "hashed_password": hashed_password,
-        "nombre_completo": usuario.nombre_completo
-    }
+    "email": usuario.email,
+    "hashed_password": hashed_password,
+    "nombre_completo": usuario.nombre_completo,
+    "rol": usuario.rol
+}
+
     response = supabase.table("usuarios").insert(nuevo_usuario).execute()
 
     token = crear_token_acceso({"sub": response.data[0]["id"]})
@@ -50,5 +55,7 @@ async def login_usuario(form_data: OAuth2PasswordRequestForm = Depends()):
     if not verificar_password(password, usuario_db["hashed_password"]):
         raise HTTPException(status_code=400, detail="Contraseña incorrecta")
 
-    token = crear_token_acceso({"sub": usuario_db["id"]})
-    return {"access_token": token, "token_type": "bearer"}
+    token = crear_token_acceso({
+    "sub": usuario_db["id"],
+    "rol": usuario_db["rol"]
+})
