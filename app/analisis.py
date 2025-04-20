@@ -1,4 +1,4 @@
-# app/analisis.py
+from app.db import supabase
 
 def calcular_puntaje(datos: dict) -> int:
     """
@@ -128,3 +128,46 @@ def clasificar_grupo(puntaje: int) -> str:
         return "Medio Bajo"
     else:
         return "Bajo"
+
+async def calcular_todos_los_estudiantes():
+    """
+    Analiza todos los estudiantes registrados en Supabase
+    y clasifica a cada uno en un grupo socioeconómico.
+    """
+    vivienda_response = supabase.table("vivienda_tecnologia").select("*").execute()
+
+    if not vivienda_response.data:
+        return []
+
+    resultados = []
+    for datos_vivienda in vivienda_response.data:
+        estudiante_id = datos_vivienda.get("estudiante_id")
+        puntaje = calcular_puntaje(datos_vivienda)
+        grupo = clasificar_grupo(puntaje)
+
+        resultados.append({
+            "id_estudiante": estudiante_id,
+            "puntaje_total": puntaje,
+            "grupo_socioeconomico": grupo
+        })
+
+    return resultados
+
+async def resumen_por_grupo():
+    """
+    Devuelve un resumen de cuántos estudiantes hay en cada grupo socioeconómico.
+    """
+    resultados = await calcular_todos_los_estudiantes()
+    resumen = {
+        "Alto": 0,
+        "Medio Alto": 0,
+        "Medio Típico": 0,
+        "Medio Bajo": 0,
+        "Bajo": 0
+    }
+
+    for estudiante in resultados:
+        grupo = estudiante["grupo_socioeconomico"]
+        resumen[grupo] += 1
+
+    return resumen
