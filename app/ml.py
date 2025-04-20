@@ -1,28 +1,38 @@
-"""
-Módulo de Machine Learning para predicción de riesgos futuros.
-"""
+from sklearn.ensemble import RandomForestClassifier
+from typing import List, Dict
+import numpy as np
 
-from typing import List
+modelo = None  # Variable global temporal
 
-class EstudianteFeatures:
-    def __init__(self, puntaje: int, grupo: str):
-        self.puntaje = puntaje
-        self.grupo = grupo
+grupo_a_numero = {
+    "Alto": 4,
+    "Medio Alto": 3,
+    "Medio Típico": 2,
+    "Medio Bajo": 1,
+    "Bajo": 0
+}
 
-def entrenar_modelo(estudiantes: List[EstudianteFeatures]):
-    """
-    Función de ejemplo para entrenar un modelo predictivo.
-    (Aquí integraríamos Scikit-learn más adelante.)
-    """
-    pass  # Pendiente de implementar cuando tengamos más datos
+numero_a_grupo = {v: k for k, v in grupo_a_numero.items()}
 
-def predecir_riesgo(estudiante: EstudianteFeatures) -> str:
+def entrenar_modelo(datos: List[Dict]):
     """
-    Función de ejemplo para predecir el riesgo de un nuevo estudiante.
+    Entrena un modelo Random Forest basado en los estudiantes ya analizados.
     """
-    if estudiante.puntaje < 400:
-        return "Alto Riesgo"
-    elif estudiante.puntaje < 600:
-        return "Riesgo Moderado"
-    else:
-        return "Bajo Riesgo"
+    global modelo
+
+    X = np.array([[dato["puntaje_total"]] for dato in datos])
+    y = np.array([grupo_a_numero[dato["grupo_socioeconomico"]] for dato in datos])
+
+    rf = RandomForestClassifier(n_estimators=100, random_state=42)
+    rf.fit(X, y)
+    modelo = rf
+
+def predecir_grupo(puntaje: int) -> str:
+    """
+    Predice el grupo socioeconómico basado en el puntaje total.
+    """
+    if modelo is None:
+        raise Exception("El modelo aún no ha sido entrenado")
+
+    prediccion = modelo.predict(np.array([[puntaje]]))
+    return numero_a_grupo[prediccion[0]]

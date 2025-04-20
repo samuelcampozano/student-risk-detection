@@ -48,7 +48,6 @@ async def calcular_riesgos_todos(skip: int = 0, limit: int = 10):
 
     return resultados
 
-
 @router.get("/resumen/")
 async def resumen_global():
     resumen = await resumen_por_grupo()
@@ -65,3 +64,13 @@ async def resumen_global():
         "alerta": alerta
     }
 
+@router.get("/graficos/grupo/")
+async def data_grafico_grupos():
+    """
+    Devuelve datos de grupos socioeconómicos para gráficos de torta o barras.
+    """
+    resumen = await resumen_por_grupo()
+    labels = list(resumen.keys())
+    valores = list(resumen.values())
+
+    return {"labels": labels, "valores": valores}
