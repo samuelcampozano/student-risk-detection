@@ -67,10 +67,18 @@ async def resumen_global():
 @router.get("/graficos/grupo/")
 async def data_grafico_grupos():
     """
-    Devuelve datos de grupos socioeconómicos para gráficos de torta o barras.
+    Devuelve datos de distribución de grupos socioeconómicos para gráficos.
     """
     resumen = await resumen_por_grupo()
-    labels = list(resumen.keys())
-    valores = list(resumen.values())
+    data = [{"grupo": grupo, "cantidad": cantidad} for grupo, cantidad in resumen.items()]
+    return data
 
-    return {"labels": labels, "valores": valores}
+@router.get("/graficos/puntajes/")
+async def data_grafico_puntajes():
+    """
+    Devuelve todos los puntajes individuales para gráficos de dispersión o histogramas.
+    """
+    resultados = await calcular_todos_los_estudiantes()
+    puntajes = [r["puntaje_total"] for r in resultados]
+
+    return {"puntajes": puntajes}
