@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import estudiantes, representantes, vivienda_tecnologia, bienes_habitos, actividad_economica, usuarios, analisis
+from app.routers import estudiantes, representantes, vivienda_tecnologia, bienes_habitos, actividad_economica, usuarios, analisis, exportar
 
 app = FastAPI(title="Sistema Minería Educacional")
 
@@ -11,6 +11,7 @@ app.include_router(bienes_habitos.router)
 app.include_router(actividad_economica.router)
 app.include_router(usuarios.router)
 app.include_router(analisis.router)
+app.include_router(exportar.router)
 
 @app.get("/")
 def read_root():
